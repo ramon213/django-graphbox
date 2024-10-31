@@ -60,6 +60,7 @@ class SchemaBuilder:
             "update_field",
             "delete_field",
         ],
+        custom_args_by_operation={},
         **kwargs,
     ):
         """Add model for build operations.
@@ -81,6 +82,7 @@ class SchemaBuilder:
             custom_attrs_for_type (list): List of custom attributes to add to the model type. [{'name': 'attr_name', 'value': 'attr_value'}, ...]
             ordering_field (str, tuple or list): Field or fields to use for ordering the list_field operation.
             operations_to_build (list): List of operations to build. Possible values are 'field_by_id', 'list_field', 'create_field', 'update_field' and 'delete_field'.
+            custom_args_by_operation (dict): Dictionary with the custom arguments to use for the operations. {'operation': [{'name': 'arg_name', 'type': graphene.String()}, ...], ...}
         """
         # get the model name
         model_name = model.__name__
@@ -128,6 +130,7 @@ class SchemaBuilder:
             "callbacks_by_operation": callbacks_by_operation,
             "ordering_field": ordering_field,
             "operations_to_build": operations_to_build,
+            "custom_args_by_operation": custom_args_by_operation,
         }
         self._models_config[model_name] = config
 
@@ -180,9 +183,13 @@ class SchemaBuilder:
                 mutate_create_function = build_mutate_for_create(self)
                 # get fields to ignore on arguments
                 fields_to_ignore = get_fields_to_ignore(model_config, "create_field")
+                # get custom arguments
+                custom_args = model_config.get("custom_args_by_operation").get(
+                    "create_field", []
+                )
                 # build argumants class
                 arguments_create = create_arguments_class(
-                    model_config["model"], fields_to_ignore
+                    model_config["model"], fields_to_ignore, custom_args
                 )
                 create_mutation = type(
                     "Create" + model_config["name"],
@@ -210,11 +217,16 @@ class SchemaBuilder:
                 mutate_update_function = build_mutate_for_update(self)
                 # get fields to omit
                 fields_to_ignore = get_fields_to_ignore(model_config, "update_field")
+                # get custom arguments
+                custom_args = model_config.get("custom_args_by_operation").get(
+                    "update_field", []
+                )
                 # build argumants class
                 arguments_update = update_arguments_class(
                     model_config["model"],
                     fields_to_ignore,
                     model_config.get("save_as_password"),
+                    custom_args,
                 )
                 update_mutation = type(
                     "Update" + model_config["name"],
@@ -240,8 +252,12 @@ class SchemaBuilder:
             # create the delete mutation
             if "delete_field" in model_config["operations_to_build"]:
                 mutate_delete_function = build_mutate_for_delete(self)
+                # get custom arguments
+                custom_args = model_config.get("custom_args_by_operation").get(
+                    "delete_field", []
+                )
                 # build argumants class
-                delete_arguments = delete_arguments_class()
+                delete_arguments = delete_arguments_class(custom_args=custom_args)
                 delete_mutation = type(
                     "Delete" + model_config["name"],
                     (graphene.Mutation,),

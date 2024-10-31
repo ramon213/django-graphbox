@@ -27,7 +27,7 @@ import logging
 # Arguments class Builders
 
 
-def create_arguments_class(model, fields_to_ignore=[]):
+def create_arguments_class(model, fields_to_ignore=[], custom_args=[]):
     """Create graphene arguments class for create_field operation
 
     Args:
@@ -62,10 +62,14 @@ def create_arguments_class(model, fields_to_ignore=[]):
                     logging.warning(
                         f"Please install graphene-file-upload to support {field_type} fields. {field.name} on {model.__name__} will be ignored"
                     )
+    for arg in custom_args:
+        setattr(Arguments, arg["name"], arg["type"])
     return Arguments
 
 
-def update_arguments_class(model, fields_to_ignore=[], fields_as_password=[]):
+def update_arguments_class(
+    model, fields_to_ignore=[], fields_as_password=[], custom_args=[]
+):
     """Create graphene arguments class for update_field operation
 
     Args:
@@ -93,10 +97,12 @@ def update_arguments_class(model, fields_to_ignore=[], fields_as_password=[]):
                 ):
                     required = False
                 setattr(Arguments, field.name.lower(), argument_type(required=required))
+    for arg in custom_args:
+        setattr(Arguments, arg["name"], arg["type"])
     return Arguments
 
 
-def delete_arguments_class():
+def delete_arguments_class(custom_args=[]):
     """Create graphene arguments class for delete_field operation
 
     Returns:
@@ -110,6 +116,8 @@ def delete_arguments_class():
     class Arguments:
         id = graphene.ID(required=True)
 
+    for arg in custom_args:
+        setattr(Arguments, arg["name"], arg["type"])
     return Arguments
 
 

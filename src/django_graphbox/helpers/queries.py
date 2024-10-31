@@ -185,6 +185,11 @@ def get_filters_args(model_config):
     external_filters = model_config.get("external_filters")
     for filter_config in external_filters:
         filters_args[filter_config.get("param_name")] = filter_config.get("param_type")
+    custom_args_by_operation = model_config.get("custom_args_by_operation")
+    if custom_args_by_operation is not None:
+        if "list_field" in custom_args_by_operation:
+            for custom_arg in custom_args_by_operation["list_field"]:
+                filters_args[custom_arg["name"]] = custom_arg["type"]
     if model_config.get("pagination_length") != 0:
         filters_args["page"] = graphene.Int(required=True)
     return filters_args

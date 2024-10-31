@@ -511,3 +511,6 @@ Some of the extra features are:
 > - Version 1.4.1 Fix bugs
 > - Version 1.4.2 Add support for callable security key on session manager
 > - Version 1.5.0 Implement Session Middleware for access control optimization
+> - Version 1.5.1 Fix bugs
+> - Version 1.5.2 Fix bugs
+> - Version 1.5.3 Add support for custom arguments by operation
