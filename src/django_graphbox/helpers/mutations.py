@@ -170,13 +170,14 @@ def build_mutate_for_create(self):
                 if "create_field" in internal_field_resolvers.keys():
                     fields_to_resolve = internal_field_resolvers.get("create_field")
                     kwargs.update(fields_to_resolve)
+                args_for_model = kwargs.copy()
                 custom_args_by_operation = config.get("custom_args_by_operation")
                 if "create_field" in custom_args_by_operation.keys():
                     custom_args = custom_args_by_operation.get("create_field")
                     # remove custom args from kwargs
                     for arg in custom_args:
-                        kwargs.pop(arg["name"])
-                for key, value in kwargs.items():
+                        args_for_model.pop(arg["name"])
+                for key, value in args_for_model.items():
                     field_type = instance._meta.get_field(key).__class__.__name__
                     if callable(value):
                         value = value(info, instance, **kwargs)
@@ -320,6 +321,7 @@ def build_mutate_for_update(self):
                                 "update_field"
                             )
                             kwargs.update(fields_to_resolve)
+                        args_for_model = kwargs.copy()
                         custom_args_by_operation = config.get(
                             "custom_args_by_operation"
                         )
@@ -327,8 +329,8 @@ def build_mutate_for_update(self):
                             custom_args = custom_args_by_operation.get("update_field")
                             # remove custom args from kwargs
                             for arg in custom_args:
-                                kwargs.pop(arg["name"])
-                        for key, value in kwargs.items():
+                                args_for_model.pop(arg["name"])
+                        for key, value in args_for_model.items():
                             if key != "id":
                                 field_type = instance._meta.get_field(
                                     key

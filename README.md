@@ -514,3 +514,5 @@ Some of the extra features are:
 > - Version 1.5.1 Fix bugs
 > - Version 1.5.2 Fix bugs
 > - Version 1.5.3 Add support for custom arguments by operation
+> - Version 1.5.4 Fix bugs
+> - Version 1.5.5 Fix bug on kwargs of the callbacks
