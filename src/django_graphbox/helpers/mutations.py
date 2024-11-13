@@ -170,6 +170,12 @@ def build_mutate_for_create(self):
                 if "create_field" in internal_field_resolvers.keys():
                     fields_to_resolve = internal_field_resolvers.get("create_field")
                     kwargs.update(fields_to_resolve)
+                custom_args_by_operation = config.get("custom_args_by_operation")
+                if "create_field" in custom_args_by_operation.keys():
+                    custom_args = custom_args_by_operation.get("create_field")
+                    # remove custom args from kwargs
+                    for arg in custom_args:
+                        kwargs.pop(arg["name"])
                 for key, value in kwargs.items():
                     field_type = instance._meta.get_field(key).__class__.__name__
                     if callable(value):
@@ -314,6 +320,14 @@ def build_mutate_for_update(self):
                                 "update_field"
                             )
                             kwargs.update(fields_to_resolve)
+                        custom_args_by_operation = config.get(
+                            "custom_args_by_operation"
+                        )
+                        if "update_field" in custom_args_by_operation.keys():
+                            custom_args = custom_args_by_operation.get("update_field")
+                            # remove custom args from kwargs
+                            for arg in custom_args:
+                                kwargs.pop(arg["name"])
                         for key, value in kwargs.items():
                             if key != "id":
                                 field_type = instance._meta.get_field(
